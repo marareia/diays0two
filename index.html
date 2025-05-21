@@ -1,11 +1,144 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="pt-BR">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Document</title>
+    <title>Jogo da Velha</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        .board {
+            display: grid;
+            grid-template-columns: repeat(3, 100px);
+            grid-template-rows: repeat(3, 100px);
+            gap: 5px;
+        }
+        .cell {
+            width: 100px;
+            height: 100px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            font-size: 2rem;
+            cursor: pointer;
+            border-radius: 10px;
+            transition: background-color 0.3s ease;
+        }
+        .cell:hover {
+            background-color: rgba(0, 0, 0, 0.1);
+        }
+    </style>
 </head>
-<body>
-    <h1>tarefas de jao</h1>
+<body class="bg-gradient-to-r from-blue-500 to-purple-500 min-h-screen flex items-center justify-center text-white">
+
+    <div class="text-center p-6 rounded-lg shadow-lg bg-white">
+        <h1 class="text-3xl font-semibold mb-4">Jogo da Velha</h1>
+        
+        <div class="flex justify-center mb-4 space-x-10">
+            <div>
+                <h2 class="text-xl">X: <span id="score-x">0</span></h2>
+            </div>
+            <div>
+                <h2 class="text-xl">O: <span id="score-o">0</span></h2>
+            </div>
+        </div>
+
+        <div class="board" id="board">
+            <!-- Células do jogo da velha -->
+            <div class="cell bg-blue-200" data-index="0"></div>
+            <div class="cell bg-blue-200" data-index="1"></div>
+            <div class="cell bg-blue-200" data-index="2"></div>
+            <div class="cell bg-blue-200" data-index="3"></div>
+            <div class="cell bg-blue-200" data-index="4"></div>
+            <div class="cell bg-blue-200" data-index="5"></div>
+            <div class="cell bg-blue-200" data-index="6"></div>
+            <div class="cell bg-blue-200" data-index="7"></div>
+            <div class="cell bg-blue-200" data-index="8"></div>
+        </div>
+
+        <button id="reset" class="mt-4 px-4 py-2 bg-purple-600 text-white rounded-full hover:bg-purple-700 focus:outline-none focus:ring-2 focus:ring-purple-500">Reiniciar Jogo</button>
+    </div>
+
+    <script>
+        let currentPlayer = 'X';
+        let gameBoard = ['', '', '', '', '', '', '', '', ''];
+        let scoreX = 0;
+        let scoreO = 0;
+
+        const cells = document.querySelectorAll('.cell');
+        const resetButton = document.getElementById('reset');
+        const scoreXElement = document.getElementById('score-x');
+        const scoreOElement = document.getElementById('score-o');
+
+        const winningCombinations = [
+            [0, 1, 2],
+            [3, 4, 5],
+            [6, 7, 8],
+            [0, 3, 6],
+            [1, 4, 7],
+            [2, 5, 8],
+            [0, 4, 8],
+            [2, 4, 6],
+        ];
+
+        function checkWinner() {
+            for (let combination of winningCombinations) {
+                const [a, b, c] = combination;
+                if (gameBoard[a] && gameBoard[a] === gameBoard[b] && gameBoard[a] === gameBoard[c]) {
+                    return gameBoard[a];
+                }
+            }
+            return null;
+        }
+
+        function updateScore(winner) {
+            if (winner === 'X') {
+                scoreX++;
+                scoreXElement.textContent = scoreX;
+            } else if (winner === 'O') {
+                scoreO++;
+                scoreOElement.textContent = scoreO;
+            }
+        }
+
+        function resetGame() {
+            gameBoard = ['', '', '', '', '', '', '', '', ''];
+            cells.forEach(cell => {
+                cell.textContent = '';
+                cell.classList.remove('bg-green-500', 'bg-red-500');
+                cell.classList.add('bg-blue-200');
+            });
+            currentPlayer = 'X';
+        }
+
+        cells.forEach(cell => {
+            cell.addEventListener('click', () => {
+                const index = cell.getAttribute('data-index');
+                if (gameBoard[index] === '') {
+                    gameBoard[index] = currentPlayer;
+                    cell.textContent = currentPlayer;
+                    cell.classList.remove('bg-blue-200');
+                    cell.classList.add(currentPlayer === 'X' ? 'bg-purple-600' : 'bg-green-500');
+                    
+                    const winner = checkWinner();
+                    if (winner) {
+                        updateScore(winner);
+                        setTimeout(() => {
+                            alert(`${winner} venceu!`);
+                            resetGame();
+                        }, 200);
+                    } else if (!gameBoard.includes('')) {
+                        setTimeout(() => {
+                            alert('Empate!');
+                            resetGame();
+                        }, 200);
+                    }
+
+                    currentPlayer = currentPlayer === 'X' ? 'O' : 'X';
+                }
+            });
+        });
+
+        resetButton.addEventListener('click', resetGame);
+    </script>
 </body>
 </html>
